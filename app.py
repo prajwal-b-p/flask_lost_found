@@ -208,14 +208,18 @@ def claim_item(item_id):
             flash('Invalid verification code. No matching LOST item found.', 'danger')
     return render_template('claim_item.html', title='Claim Item', form=form, item=found_item)
 
+# --- DATABASE INITIALIZATION (Run on Import) ---
+with app.app_context():
+    db.create_all()
+    # Create default categories if they don't exist
+    if not Category.query.first():
+        db.session.add(Category(name='Electronics'))
+        db.session.add(Category(name='Clothing'))
+        db.session.add(Category(name='Keys'))
+        db.session.add(Category(name='Wallets/Purses'))
+        db.session.add(Category(name='ID Cards'))
+        db.session.commit()
+
 # --- APP START ---
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all() # Creates SQLite file
-        # Create some default categories if they don't exist
-        if not Category.query.first():
-            db.session.add(Category(name='Electronics'))
-            db.session.add(Category(name='Clothing'))
-            db.session.add(Category(name='Keys'))
-            db.session.commit()
     app.run(debug=True)
