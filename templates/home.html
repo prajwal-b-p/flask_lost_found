@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section rounded-4 shadow-lg overflow-hidden mb-5 position-relative">
+    <div class="hero-gradient"></div>
+    <div class="row align-items-center position-relative" style="z-index: 2;">
+        <div class="col-lg-6 p-5">
+            <span class="badge bg-white text-primary fw-bold mb-3 px-3 py-2 shadow-sm"><i class="bi bi-stars me-1"></i>
+                Campus Platform</span>
+            <h1 class="display-4 fw-bold text-white lh-1 mb-3">Find what's lost.<br>Return what's found.</h1>
+            <p class="lead text-white-50 mb-4">A community-driven platform to reconnect people with their belongings.
+                Secure verification codes ensure rightful ownership.</p>
+            <div class="d-flex gap-3 flex-wrap">
+                <a href="{{ url_for('post_item') }}" class="btn btn-light btn-lg px-4 fw-bold shadow-sm">
+                    <i class="bi bi-plus-circle me-2"></i>Post an Item
+                </a>
+                <a href="{{ url_for('search') }}" class="btn btn-outline-light btn-lg px-4">
+                    <i class="bi bi-search me-2"></i>Search Items
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-6 d-none d-lg-flex align-items-center justify-content-center py-5">
+            <div class="hero-floating-card glass-card p-4 rounded-4 text-white text-center shadow-lg">
+                <i class="bi bi-shield-lock-fill" style="font-size: 4rem;"></i>
+                <h4 class="fw-bold mt-3 mb-1">Secure Verification</h4>
+                <p class="text-white-50 mb-0 small">Each lost item gets a unique code for safe claiming.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- How It Works -->
+<div class="row g-4 mb-5">
+    <div class="col-12 text-center mb-2">
+        <h2 class="fw-bold">How It Works</h2>
+        <p class="text-muted">Three simple steps to reunite with your belongings</p>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100 text-center p-4 step-card">
+            <div class="step-number">1</div>
+            <i class="bi bi-pencil-square text-primary mb-3" style="font-size: 2.5rem;"></i>
+            <h5 class="fw-bold">Report</h5>
+            <p class="text-muted small mb-0">Post a lost or found item with a photo and details.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100 text-center p-4 step-card">
+            <div class="step-number">2</div>
+            <i class="bi bi-shield-lock text-primary mb-3" style="font-size: 2.5rem;"></i>
+            <h5 class="fw-bold">Verify</h5>
+            <p class="text-muted small mb-0">Lost items get a unique code. Share it to prove ownership.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100 text-center p-4 step-card">
+            <div class="step-number">3</div>
+            <i class="bi bi-hand-thumbs-up text-primary mb-3" style="font-size: 2.5rem;"></i>
+            <h5 class="fw-bold">Claim</h5>
+            <p class="text-muted small mb-0">Match the code and claim your item back safely.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Items -->
+<h2 class="fw-bold mb-1">Recent Items</h2>
+<p class="text-muted mb-4">Browse the latest lost and found reports</p>
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for item in items %}
+    <div class="col">
+        <div class="card h-100 border-0 shadow-sm rounded-4 position-relative overflow-hidden item-card-hover">
+            <span
+                class="position-absolute top-0 end-0 m-3 badge bg-{{ 'danger' if item.type == 'LOST' else 'success' }} shadow-sm z-1 px-3 py-2">
+                <i class="bi bi-{{ 'exclamation-triangle' if item.type == 'LOST' else 'check-circle' }} me-1"></i>{{
+                item.type }}
+            </span>
+            {% if item.status == 'CLAIMED' %}
+            <span class="position-absolute top-0 start-0 m-3 badge claimed-badge shadow-sm z-1">CLAIMED</span>
+            {% endif %}
+
+            {% if item.image_file %}
+            <div style="height: 200px; overflow: hidden;">
+                <img src="{{ url_for('static', filename='uploads/' + item.image_file) }}" class="w-100 h-100"
+                    style="object-fit: cover; transition: transform 0.4s;" alt="{{ item.title }}">
+            </div>
+            {% else %}
+            <div class="d-flex align-items-center justify-content-center text-muted"
+                style="height: 200px; background: linear-gradient(135deg, #e0e7ff 0%, #f0fdf4 100%);">
+                <i class="bi bi-image" style="font-size: 3rem; opacity: 0.25;"></i>
+            </div>
+            {% endif %}
+
+            <div class="card-body">
+                <h5 class="card-title fw-bold text-truncate">{{ item.title }}</h5>
+                <p class="card-text text-muted small mb-3" style="min-height: 2.5rem;">{{ item.description[:80] }}{% if
+                    item.description|length > 80 %}...{% endif %}</p>
+                <div class="d-flex justify-content-between text-muted small">
+                    <span><i class="bi bi-geo-alt me-1"></i>{{ item.location }}</span>
+                    <span><i class="bi bi-calendar me-1"></i>{{ item.date_occurred.strftime('%b %d, %Y') }}</span>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent border-0 pb-3 px-3 pt-0">
+                <a href="{{ url_for('item_detail', item_id=item.id) }}"
+                    class="btn btn-outline-primary w-100 fw-bold rounded-3">View Details</a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12 text-center py-5">
+        <div class="text-muted mb-3"><i class="bi bi-inbox" style="font-size: 4rem; opacity: 0.2;"></i></div>
+        <h3 class="fw-light text-muted">No items posted yet.</h3>
+        <p class="text-muted">Be the first to help the community!</p>
+        <a href="{{ url_for('post_item') }}" class="btn btn-primary mt-3 px-4">Post Now</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

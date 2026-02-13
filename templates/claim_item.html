@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('home') }}" class="text-decoration-none">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('item_detail', item_id=item.id) }}"
+                        class="text-decoration-none">{{ item.title }}</a></li>
+                <li class="breadcrumb-item active">Claim</li>
+            </ol>
+        </nav>
+
+        <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+            <div class="card-header bg-success text-white py-4 px-5">
+                <h3 class="fw-bold mb-1"><i class="bi bi-shield-lock me-2"></i>Claim This Item</h3>
+                <p class="mb-0 text-white-50">Enter the verification code from the matching LOST item to claim.</p>
+            </div>
+
+            <!-- Found Item Summary -->
+            <div class="card-body border-bottom bg-light py-4 px-5">
+                <div class="d-flex align-items-center">
+                    {% if item.image_file %}
+                    <img src="{{ url_for('static', filename='uploads/' + item.image_file) }}" alt="{{ item.title }}"
+                        class="rounded-3 me-4 shadow-sm" style="width: 80px; height: 80px; object-fit: cover;">
+                    {% else %}
+                    <div class="bg-white rounded-3 me-4 d-flex align-items-center justify-content-center shadow-sm"
+                        style="width: 80px; height: 80px;">
+                        <i class="bi bi-image text-muted" style="font-size: 2rem;"></i>
+                    </div>
+                    {% endif %}
+                    <div>
+                        <h5 class="fw-bold mb-1">{{ item.title }}</h5>
+                        <span class="badge bg-success me-2">FOUND</span>
+                        <small class="text-muted"><i class="bi bi-geo-alt me-1"></i>{{ item.location }}</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Claim Form -->
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success bg-opacity-10 mb-3"
+                        style="width: 80px; height: 80px;">
+                        <i class="bi bi-qr-code text-success" style="font-size: 2.5rem;"></i>
+                    </div>
+                    <p class="text-muted">Ask the person who reported the item as <strong>LOST</strong> for their unique
+                        8-character verification code.</p>
+                </div>
+
+                <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    <div class="form-group mb-4">
+                        {{ form.verification_code.label(class="form-label fw-bold small text-uppercase text-muted") }}
+                        {% if form.verification_code.errors %}
+                        {{ form.verification_code(class="form-control is-invalid form-control-lg text-center fw-bold",
+                        style="letter-spacing: 6px; font-size: 1.5rem; font-family: monospace;", placeholder="XXXXXXXX",
+                        maxlength="8") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.verification_code.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.verification_code(class="form-control form-control-lg bg-light border-0 text-center
+                        fw-bold", style="letter-spacing: 6px; font-size: 1.5rem; font-family: monospace;",
+                        placeholder="XXXXXXXX", maxlength="8") }}
+                        {% endif %}
+                    </div>
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-success btn-lg fw-bold shadow-sm py-3") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

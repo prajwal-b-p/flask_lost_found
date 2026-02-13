@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+            <div class="card-header bg-primary text-white py-4 px-5">
+                <h3 class="fw-bold mb-1"><i class="bi bi-pencil-square me-2"></i>Post a New Item</h3>
+                <p class="mb-0 text-white-50">Fill in the details below to help find or return an item.</p>
+            </div>
+            <div class="card-body p-4 p-md-5">
+                <form method="POST" action="" enctype="multipart/form-data" id="postItemForm">
+                    {{ form.hidden_tag() }}
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.type.label(class="form-label fw-bold small text-uppercase text-muted") }}
+                                {% if form.type.errors %}
+                                {{ form.type(class="form-select is-invalid form-select-lg bg-light border-0",
+                                id="itemType") }}
+                                <div class="invalid-feedback">{% for e in form.type.errors %}<span>{{ e }}</span>{%
+                                    endfor %}</div>
+                                {% else %}
+                                {{ form.type(class="form-select form-select-lg bg-light border-0", id="itemType") }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.category.label(class="form-label fw-bold small text-uppercase text-muted") }}
+                                {% if form.category.errors %}
+                                {{ form.category(class="form-select is-invalid form-select-lg bg-light border-0") }}
+                                <div class="invalid-feedback">{% for e in form.category.errors %}<span>{{ e }}</span>{%
+                                    endfor %}</div>
+                                {% else %}
+                                {{ form.category(class="form-select form-select-lg bg-light border-0") }}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info banner that changes based on type -->
+                    <div id="typeBanner" class="alert border-0 rounded-3 mb-4 d-none">
+                    </div>
+
+                    <div class="form-group mb-4">
+                        {{ form.title.label(class="form-label fw-bold small text-uppercase text-muted") }}
+                        {% if form.title.errors %}
+                        {{ form.title(class="form-control is-invalid form-control-lg") }}
+                        <div class="invalid-feedback">{% for e in form.title.errors %}<span>{{ e }}</span>{% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.title(class="form-control form-control-lg bg-light border-0", placeholder="e.g. Blue
+                        Jansport Backpack") }}
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group mb-4">
+                        {{ form.description.label(class="form-label fw-bold small text-uppercase text-muted") }}
+                        {% if form.description.errors %}
+                        {{ form.description(class="form-control is-invalid form-control-lg", rows="4") }}
+                        <div class="invalid-feedback">{% for e in form.description.errors %}<span>{{ e }}</span>{%
+                            endfor %}</div>
+                        {% else %}
+                        {{ form.description(class="form-control form-control-lg bg-light border-0", rows="4",
+                        placeholder="Provide as much detail as possible...") }}
+                        {% endif %}
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            {{ form.location.label(class="form-label fw-bold small text-uppercase text-muted") }}
+                            {% if form.location.errors %}
+                            {{ form.location(class="form-control is-invalid form-control-lg") }}
+                            <div class="invalid-feedback">{% for e in form.location.errors %}<span>{{ e }}</span>{%
+                                endfor %}</div>
+                            {% else %}
+                            {{ form.location(class="form-control form-control-lg bg-light border-0", placeholder="e.g.
+                            Student Center") }}
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.date_occurred.label(class="form-label fw-bold small text-uppercase text-muted") }}
+                            {% if form.date_occurred.errors %}
+                            {{ form.date_occurred(class="form-control is-invalid form-control-lg") }}
+                            <div class="invalid-feedback">{% for e in form.date_occurred.errors %}<span>{{ e }}</span>{%
+                                endfor %}</div>
+                            {% else %}
+                            {{ form.date_occurred(class="form-control form-control-lg bg-light border-0", type="date")
+                            }}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Image Upload Section with Camera -->
+                    <div class="form-group mb-5">
+                        <label class="form-label fw-bold small text-uppercase text-muted">Upload Image</label>
+                        <div class="upload-area rounded-4 p-4 text-center position-relative">
+                            <!-- Preview -->
+                            <div id="imagePreviewContainer" class="d-none mb-3">
+                                <img id="imagePreview" class="rounded-3 shadow-sm"
+                                    style="max-height: 250px; max-width: 100%; object-fit: contain;" alt="Preview">
+                                <button type="button" class="btn btn-sm btn-outline-danger mt-2" onclick="clearImage()">
+                                    <i class="bi bi-trash me-1"></i>Remove
+                                </button>
+                            </div>
+
+                            <!-- Upload Options -->
+                            <div id="uploadOptions">
+                                <i class="bi bi-cloud-arrow-up"
+                                    style="font-size: 3rem; color: var(--primary-color); opacity: 0.5;"></i>
+                                <p class="text-muted mt-2 mb-3">Upload a photo or take one with your camera</p>
+                                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                                    <label class="btn btn-outline-primary px-4" for="fileInput">
+                                        <i class="bi bi-folder2-open me-2"></i>Choose File
+                                    </label>
+                                    <button type="button" class="btn btn-outline-success px-4" onclick="openCamera()">
+                                        <i class="bi bi-camera-fill me-2"></i>Open Camera
+                                    </button>
+                                </div>
+                                {{ form.image(class="d-none", id="fileInput", onchange="previewFile(event)") }}
+                            </div>
+                        </div>
+                        <small class="form-text text-muted">JPG, PNG — max 5MB.</small>
+                    </div>
+
+                    <!-- Hidden field for camera data -->
+                    <input type="hidden" name="camera_image" id="cameraImageData">
+
+                    <div class="d-grid gap-2">
+                        {{ form.submit(class="btn btn-primary btn-lg fw-bold shadow-sm py-3") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Camera Modal -->
+<div class="modal fade" id="cameraModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 overflow-hidden shadow-lg">
+            <div class="modal-header bg-dark text-white border-0">
+                <h5 class="modal-title"><i class="bi bi-camera-video me-2"></i>Camera Capture</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    onclick="stopCamera()"></button>
+            </div>
+            <div class="modal-body bg-dark p-0 text-center position-relative">
+                <video id="cameraFeed" autoplay playsinline
+                    style="width: 100%; max-height: 60vh; object-fit: cover;"></video>
+                <canvas id="cameraCanvas" class="d-none"></canvas>
+            </div>
+            <div class="modal-footer bg-dark border-0 justify-content-center py-3">
+                <button type="button" class="btn btn-light btn-lg rounded-circle shadow"
+                    style="width: 70px; height: 70px;" onclick="capturePhoto()">
+                    <i class="bi bi-camera-fill fs-4 text-dark"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let cameraStream = null;
+
+    // Type-based info banner
+    document.getElementById('itemType').addEventListener('change', function () {
+        const banner = document.getElementById('typeBanner');
+        banner.classList.remove('d-none');
+        if (this.value === 'LOST') {
+            banner.className = 'alert border-0 rounded-3 mb-4 bg-danger bg-opacity-10 text-danger';
+            banner.innerHTML = '<i class="bi bi-info-circle me-2"></i><strong>Lost Item:</strong> A unique verification code will be generated for you. Keep it safe to verify ownership later!';
+        } else {
+            banner.className = 'alert border-0 rounded-3 mb-4 bg-success bg-opacity-10 text-success';
+            banner.innerHTML = '<i class="bi bi-info-circle me-2"></i><strong>Found Item:</strong> Once posted, others can claim this by providing their LOST verification code.';
+        }
+    });
+    // Trigger on page load
+    document.getElementById('itemType').dispatchEvent(new Event('change'));
+
+    // File preview
+    function previewFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            showPreview(e.target.result);
+            document.getElementById('cameraImageData').value = ''; // clear camera data
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function showPreview(src) {
+        document.getElementById('imagePreview').src = src;
+        document.getElementById('imagePreviewContainer').classList.remove('d-none');
+        document.getElementById('uploadOptions').classList.add('d-none');
+    }
+
+    function clearImage() {
+        document.getElementById('imagePreview').src = '';
+        document.getElementById('imagePreviewContainer').classList.add('d-none');
+        document.getElementById('uploadOptions').classList.remove('d-none');
+        document.getElementById('fileInput').value = '';
+        document.getElementById('cameraImageData').value = '';
+    }
+
+    // Camera
+    function openCamera() {
+        const modal = new bootstrap.Modal(document.getElementById('cameraModal'));
+        modal.show();
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+            .then(stream => {
+                cameraStream = stream;
+                document.getElementById('cameraFeed').srcObject = stream;
+            })
+            .catch(err => {
+                alert('Could not access camera: ' + err.message);
+                modal.hide();
+            });
+    }
+
+    function capturePhoto() {
+        const video = document.getElementById('cameraFeed');
+        const canvas = document.getElementById('cameraCanvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+        document.getElementById('cameraImageData').value = dataUrl;
+        showPreview(dataUrl);
+        stopCamera();
+        bootstrap.Modal.getInstance(document.getElementById('cameraModal')).hide();
+    }
+
+    function stopCamera() {
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(t => t.stop());
+            cameraStream = null;
+        }
+    }
+</script>
+{% endblock %}
