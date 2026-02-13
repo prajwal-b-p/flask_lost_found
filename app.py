@@ -190,6 +190,11 @@ def report_item(item_id):
 def claim_item(item_id):
     """Claim a FOUND item by providing the matching LOST item's verification code."""
     found_item = Item.query.get_or_404(item_id)
+    # Ensure only the Finder (who posted the item) can verify the claim
+    if found_item.user_id != current_user.id:
+        flash('Only the person who posted this item can verify a claim.', 'danger')
+        return redirect(url_for('item_detail', item_id=item_id))
+
     if found_item.type != 'FOUND' or found_item.status != 'OPEN':
         flash('This item cannot be claimed.', 'warning')
         return redirect(url_for('item_detail', item_id=item_id))
@@ -202,10 +207,10 @@ def claim_item(item_id):
             lost_item.status = 'CLAIMED'
             found_item.status = 'CLAIMED'
             db.session.commit()
-            flash('Item claimed successfully! Both items are now marked as CLAIMED.', 'success')
+            flash('Verification successful! Use this code to confirm the return of the item.', 'success')
             return redirect(url_for('item_detail', item_id=item_id))
         else:
-            flash('Invalid verification code. No matching LOST item found.', 'danger')
+            flash('Invalid verification code. Please check the code provided by the claimant.', 'danger')
     return render_template('claim_item.html', title='Claim Item', form=form, item=found_item)
 
 # --- DATABASE INITIALIZATION (Run on Import) ---
